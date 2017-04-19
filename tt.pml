@@ -13,10 +13,14 @@ bool awon = false;
 //  bool in_play;
 //}
 
+inline board2d(x, y) {
+    board[x + y * LEN] == true
+}
+
 // are the coordinates x and y on the board?
 // ...only the shadow knows
 inline is_hole(x, y) {
-    ((x >= 0) && (y >= 0) && (x + y < LEN) && (!board[x][y]))
+    (x >= 0) && (y >= 0) && (x + y < LEN) && (!board2d(x,y))
 }
 
 /*
@@ -24,20 +28,20 @@ inline is_hole(x, y) {
  * (new_x, new_y)
  */
 inline jump(x, y, new_x, new_y) {
-    board[x][y] = false;
-    board[new_x][new_y] = true;
-    board[(x+new_x)/2][(y+new_y)/2] = false;
+    board2d(x, y) = false;
+    board2d(new_x, new_y) = true;
+    board2d((x+new_x)/2, (y+new_y)/2) = false;
 }
 
-inline can_jump_to(x, y, jx, jy) {
+inline can_jump_to(fx, fy, jx, jy) {
     // the hole (jx, jy) is free and there's a pin inbetween the jumping
     // pin and the hole
-    is_hole(jx, jy) && board[(x+jx)/2][(y+jy)/2] == true;
+    is_hole(jx, jy) && board2d((fx+jx)/2, (fy+jy)/2)
 }
 
 // TODO: Cleanup
 inline can_jump(x, y) {
-    (board[x][y] && 
+    (board2d(x, y) && 
     (can_jump_to(x, y, x+2, y) ||
     can_jump_to(x, y, x-2, y) ||
     can_jump_to(x, y, x, y+2) ||
@@ -53,7 +57,7 @@ inline can_jump(x, y) {
 proctype Board(byte hole_x, hole_y) {
     /*bool board[LEN][LEN];
     // initialize the pegs
-    board[hole_x][hole_y] = false;*/
+    board2d(hole_x, hole_y) = false;*/
 
     bool game_over = false;
     do
@@ -121,7 +125,7 @@ proctype Board(byte hole_x, hole_y) {
         do
         :: y < LEN - x ->
             if
-            :: board[x][y] -> num_pins++;
+            :: board2d(x, y) -> num_pins++;
             fi;
             y++;
         :: else -> break;
