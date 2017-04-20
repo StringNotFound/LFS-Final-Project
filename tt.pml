@@ -64,10 +64,18 @@ inline all_won() {
  * board at the given coordinates
  */
 proctype Board(byte hole_x, hole_y) {
+    printf("pid %d\n", _pid - 1);
     /*bool board[LEN][LEN];
     // initialize the pegs
     board2d(hole_x, hole_y) = false;*/
-    bool board[NUM_HOLES];
+    bool board[LEN * LEN];
+    byte j = 0;
+    do
+        :: j < LEN * LEN -> 
+            board[j] = true; 
+            j++;
+        :: else -> break;
+    od;
     board2d(hole_x, hole_y) = false;
 
     bool game_over = false;
@@ -83,15 +91,18 @@ proctype Board(byte hole_x, hole_y) {
        :: x < LEN -> 
            y = 0;
            do
-           :: y < LEN - x ->//&& can_jump(x, y) ->
+           :: y < LEN - x && can_jump(x, y) ->
                // we take the pin!
                any_valid = true;
                goto breakout;
-           :: y < LEN - x ->//&& can_jump(x, y) ->
+           :: y < LEN - x && can_jump(x, y) ->
                // we see a valid pin, but press onward
                any_valid = true;
                lvx = x;
                lvy = y;
+               y++;
+           :: y < LEN - x && !can_jump(x, y) ->
+               // this pin ain't doin' nothin'
                y++;
            :: y == LEN - x ->
                break;
@@ -110,10 +121,17 @@ proctype Board(byte hole_x, hole_y) {
                y = lvy;
            :: else ->
                // there aren't any more valid pins
+               printf("no more valid pins");
                break; // stop playing this game
            fi;
+       :: else ->
+           // we did end on a valid pin
+           printf("valid pin");
+           skip;
        fi;
 
+       printf("we found a valid jump");
+       printf("valid pin: (%d, %d)", x, y);
 
        // now we actually jump
        if
@@ -124,7 +142,9 @@ proctype Board(byte hole_x, hole_y) {
        :: can_jump_to(x, y, x+2, y-2) -> jump(x, y, x+2, y-2);
        :: can_jump_to(x, y, x-2, y+2) -> jump(x, y, x-2, y+2);
        fi;
+       printf("jumped");
     od;
+
 
     // now that the game is over, we have stuff to do
     byte num_pins = 0;
@@ -137,6 +157,7 @@ proctype Board(byte hole_x, hole_y) {
         :: y < LEN - x ->
             if
             :: board2d(x, y) -> num_pins++;
+            :: else -> skip;
             fi;
             y++;
         :: else -> break;
@@ -147,28 +168,31 @@ proctype Board(byte hole_x, hole_y) {
 
     if
     :: num_pins == 1 ->
-        winners[_pid] = true;
+        winners[_pid - 1] = true;
+    :: else ->
+        printf("failure");
     fi;
 
     all_won();
-    printf("Process %d finished", _pid);
+    printf("Process %d finished", _pid -1);
 }
 
 init {
     byte x;
     byte y;
-    for (x : 0 .. LEN) {
-        for (y : 0 .. LEN - x) {
+    /*for (x : 0 .. LEN - 1) {
+        for (y : 0 .. LEN - 1 - x) {
             // for each coordinate, spin a process with
             // a starting hole at this coordinate
             run Board(x, y);
         }
-    }
+    }*/
+    run Board(0, 0);
 }
 
 
 
 
 ltl all_possible {
-    !never(awon);
+    always(!winners[0]);
 }
