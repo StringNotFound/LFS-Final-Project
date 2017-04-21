@@ -180,19 +180,18 @@ proctype Board(byte hole_x, hole_y) {
 init {
     byte x;
     byte y;
-    /*for (x : 0 .. LEN - 1) {
+    for (x : 0 .. LEN - 1) {
         for (y : 0 .. LEN - 1 - x) {
             // for each coordinate, spin a process with
             // a starting hole at this coordinate
             run Board(x, y);
         }
-    }*/
-    run Board(0, 0);
+    }
 }
 
 
 
 
 ltl all_possible {
-    always(!winners[0]);
+    always(!awon);
 }
