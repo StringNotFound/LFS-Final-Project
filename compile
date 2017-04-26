@@ -1,5 +1,5 @@
 #!/bin/bash
 
 spin -a tt.pml
-gcc -o pan -DBITSTATE -O2 pan.c
-./pan -a
+gcc -o pan -DBITSTATE -O2 -DNFAIR=5 pan.c
+./pan -a -f

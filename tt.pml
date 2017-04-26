@@ -14,7 +14,8 @@ inline all_won() {
     byte i = 0;
     bool lawon = true;
     do
-    :: i < NUM_HOLES ->
+    //:: i < NUM_HOLES ->
+    :: i < 6 ->
         lawon = lawon && winners[i];
         i++;
     :: else ->
@@ -64,10 +65,7 @@ inline all_won() {
  * board at the given coordinates
  */
 proctype Board(byte hole_x, hole_y) {
-    printf("pid %d\n", _pid - 1);
-    /*bool board[LEN][LEN];
-    // initialize the pegs
-    board2d(hole_x, hole_y) = false;*/
+
     bool board[LEN * LEN];
     byte j = 0;
     do
@@ -121,17 +119,13 @@ proctype Board(byte hole_x, hole_y) {
                y = lvy;
            :: else ->
                // there aren't any more valid pins
-               printf("no more valid pins");
                break; // stop playing this game
            fi;
        :: else ->
            // we did end on a valid pin
-           printf("valid pin");
            skip;
        fi;
 
-       printf("we found a valid jump");
-       printf("valid pin: (%d, %d)", x, y);
 
        // now we actually jump
        if
@@ -142,7 +136,6 @@ proctype Board(byte hole_x, hole_y) {
        :: can_jump_to(x, y, (x+2), (y-2)) -> jump(x, y, (x+2), (y-2));
        :: can_jump_to(x, y, (x-2), (y+2)) -> jump(x, y, (x-2), (y+2));
        fi;
-       printf("jumped");
     od;
 
 
@@ -169,16 +162,31 @@ proctype Board(byte hole_x, hole_y) {
     if
     :: num_pins == 1 ->
         winners[_pid - 1] = true;
+        //awon = true;
     :: else ->
-        printf("failure");
+        skip;
     fi;
 
-    all_won();
-    printf("Process %d finished", _pid -1);
+    //winners[_pid - 1] = true;
+
+    //printf("Ending process with _pid %d\n", _pid);
+
+    /*{
+        byte i = 0;
+        bool lawon = true;
+        do
+        :: i < NUM_HOLES ->
+            lawon = lawon && winners[i];
+            i++;
+        :: else ->
+            break;
+        od;
+        awon = lawon;
+    }*/
 }
 
 init {
-    byte x;
+    /*byte x;
     byte y;
     for (x : 0 .. LEN - 1) {
         for (y : 0 .. LEN - 1 - x) {
@@ -186,7 +194,29 @@ init {
             // a starting hole at this coordinate
             run Board(x, y);
         }
-    }
+    }*/
+    run Board(0,0);
+    run Board(0,1);
+    run Board(0,2);
+    /*run Board(0,3);
+    run Board(0,4);
+    run Board(1,0);*/
+    /*run Board(1,1);
+    run Board(1,2);
+    run Board(1,3);
+    run Board(2,0);
+    run Board(2,1);
+    run Board(2,2);
+    run Board(3,0);
+    run Board(3,1);
+    run Board(4,0);*/
+    //_nr_pr == 1;
+    //printf("done");
+
+    all_won();
+    assert(!awon);
+
+    //assert(false);
 }
 
 
@@ -194,4 +224,5 @@ init {
 
 ltl all_possible {
     always(!awon);
+    //always(!winners[NUM_HOLES - 1]);
 }
