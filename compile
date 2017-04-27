@@ -1,5 +1,10 @@
 #!/bin/bash
 
-spin -a tt.pml
-gcc -o pan -DBITSTATE -O2 -DNFAIR=5 pan.c
-./pan -a -f
+if [ "$#" -ne 3 ]; then
+    echo "Illegal number of parameters"
+    exit 1
+fi
+
+spin -a -DLEN=$1 -DX=$2 -DY=$3 tt.pml
+gcc -o pan -O2 -DSAFETY pan.c
+./pan

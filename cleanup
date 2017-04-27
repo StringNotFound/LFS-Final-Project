@@ -1,0 +1,4 @@
+#!/bin/bash
+
+rm -rf pan*
+rm -f _spin_nvr.tmp tt.pml.trail

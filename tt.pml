@@ -1,64 +1,34 @@
-#define LEN 5
 #define NUM_HOLES (LEN)*(LEN+1)/2
-#define board2d(x, y) board[x + y * LEN]
-#define is_hole(x, y) ((x >= 0) && (y >= 0) && ((x + y) < LEN) && (!board2d(x,y)))
-#define jump(x, y, new_x, new_y) board2d(x, y) = false; board2d(new_x, new_y) = true; board2d(((x+new_x)/2), ((y+new_y)/2)) = false;
-#define can_jump_to(fx, fy, jx, jy) (is_hole(jx, jy) && board2d(((fx+jx)/2), ((fy+jy)/2)))
-#define can_jump(x, y) (board2d(x, y) && (can_jump_to(x, y, (x+2), y) || can_jump_to(x, y, (x-2), y) || can_jump_to(x, y, x, (y+2)) || can_jump_to(x, y, x, (y-2)) || can_jump_to(x, y, (x+2), (y-2)) || can_jump_to(x, y, (x-2), (y+2))))
 
-bool winners[NUM_HOLES];// = {false};
-// did everyone win?
-bool awon = false;
+#define board2d(x, y) \
+    board[x + y * LEN]
 
-inline all_won() {
-    byte i = 0;
-    bool lawon = true;
-    do
-    //:: i < NUM_HOLES ->
-    :: i < 6 ->
-        lawon = lawon && winners[i];
-        i++;
-    :: else ->
-        break;
-    od;
-    awon = lawon;
-}
+#define is_hole(x, y) \
+    ((x >= 0) && \
+     (y >= 0) && \
+     ((x + y) < LEN) && \
+     (!board2d(x,y)))
 
-// TODO: FIX ARRAY ERRORS BEFORE ANYTHING ELSE!!!!!
+#define jump(x, y, new_x, new_y) \
+    board2d(x, y) = false;\
+    board2d(new_x, new_y) = true;\
+    board2d(((x+new_x)/2), ((y+new_y)/2)) = false;
 
-//typedef Hole {
-//  byte x;
-//  byte y;
-//  bool in_play;
-//}
+#define can_jump_to(fx, fy, jx, jy)\
+    (is_hole(jx, jy) && \
+     board2d(((fx+jx)/2), ((fy+jy)/2)))
 
-// are the coordinates x and y on the board?
-// ...only the shadow knows
+#define can_jump(x, y) \
+    (board2d(x, y) && \
+     (can_jump_to(x, y, (x+2), y) || \
+      can_jump_to(x, y, (x-2), y) || \
+      can_jump_to(x, y, x, (y+2)) || \
+      can_jump_to(x, y, x, (y-2)) || \
+      can_jump_to(x, y, (x+2), (y-2)) || \
+      can_jump_to(x, y, (x-2), (y+2))))
 
-/*
- * jump peg in location (x, y) to the location
- * (new_x, new_y)
- */
-/*inline jump(x, y, new_x, new_y) {
-    board2d(x, y) = false; board2d(new_x, new_y) = true; board2d((x+new_x)/2, (y+new_y)/2) = false;
-}*/
-
-/*inline can_jump_to(fx, fy, jx, jy) {
-    // the hole (jx, jy) is free and there's a pin inbetween the jumping
-    // pin and the hole
-    is_hole(jx, jy) && board2d((fx+jx)/2, (fy+jy)/2)
-} */
-
-// TODO: Cleanup
-/* inline can_jump(x, y) {
-    (board2d(x, y) && 
-    (can_jump_to(x, y, x+2, y) ||
-    can_jump_to(x, y, x-2, y) ||
-    can_jump_to(x, y, x, y+2) ||
-    can_jump_to(x, y, x, y-2) ||
-    can_jump_to(x, y, x+2, y-2) ||
-    can_jump_to(x, y, x-2, y+2)))
-} */
+// keep track of whether we've won
+bool won = false;
 
 /*
  * this process tests if the board is solvable with
@@ -66,6 +36,7 @@ inline all_won() {
  */
 proctype Board(byte hole_x, hole_y) {
 
+    // initialize the board to all true except for the hole
     bool board[LEN * LEN];
     byte j = 0;
     do
@@ -76,6 +47,7 @@ proctype Board(byte hole_x, hole_y) {
     od;
     board2d(hole_x, hole_y) = false;
 
+    // play the game
     bool game_over = false;
     do
     :: true -> 
@@ -114,6 +86,8 @@ proctype Board(byte hole_x, hole_y) {
        :: x == LEN ->
            // we didn't end on a valid pin
            if
+              // ...and we didn't encounter any
+              // valid pins during our search
            :: any_valid ->
                x = lvx;
                y = lvy;
@@ -139,7 +113,7 @@ proctype Board(byte hole_x, hole_y) {
     od;
 
 
-    // now that the game is over, we have stuff to do
+    // now that the game is over, we need to see if we won
     byte num_pins = 0;
     x = 0;
     y = 0;
@@ -159,70 +133,21 @@ proctype Board(byte hole_x, hole_y) {
     :: else -> break;
     od;
 
+    // if there's one pin left, we've won!
     if
     :: num_pins == 1 ->
-        winners[_pid - 1] = true;
-        //awon = true;
+        won = true;
     :: else ->
         skip;
     fi;
 
-    //winners[_pid - 1] = true;
-
-    //printf("Ending process with _pid %d\n", _pid);
-
-    /*{
-        byte i = 0;
-        bool lawon = true;
-        do
-        :: i < NUM_HOLES ->
-            lawon = lawon && winners[i];
-            i++;
-        :: else ->
-            break;
-        od;
-        awon = lawon;
-    }*/
 }
 
 init {
-    /*byte x;
-    byte y;
-    for (x : 0 .. LEN - 1) {
-        for (y : 0 .. LEN - 1 - x) {
-            // for each coordinate, spin a process with
-            // a starting hole at this coordinate
-            run Board(x, y);
-        }
-    }*/
-    run Board(0,0);
-    run Board(0,1);
-    run Board(0,2);
-    /*run Board(0,3);
-    run Board(0,4);
-    run Board(1,0);*/
-    /*run Board(1,1);
-    run Board(1,2);
-    run Board(1,3);
-    run Board(2,0);
-    run Board(2,1);
-    run Board(2,2);
-    run Board(3,0);
-    run Board(3,1);
-    run Board(4,0);*/
-    //_nr_pr == 1;
-    //printf("done");
+    // X and Y must be defined at compilation with the D flag
+    run Board(X,Y);
 
-    all_won();
-    assert(!awon);
-
-    //assert(false);
-}
-
-
-
-
-ltl all_possible {
-    always(!awon);
-    //always(!winners[NUM_HOLES - 1]);
+    // assert that the board never wins (should fail if there's
+    // a possible solution)
+    assert(!won);
 }
