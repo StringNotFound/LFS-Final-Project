@@ -1,23 +1,46 @@
+// LEN is defined at compile time with the -D flag
+
+// how many holes are in the board given LEN?
 #define NUM_HOLES (LEN)*(LEN+1)/2
 
+// access index (x, y) of the board array
+// (board is actually a 1D array)
 #define board2d(x, y) \
     board[x + y * LEN]
 
+/*
+ * returns true if there's a hole at the
+ * index (x, y) and if that index is within
+ * the bounds of the board
+ */
 #define is_hole(x, y) \
     ((x >= 0) && \
      (y >= 0) && \
      ((x + y) < LEN) && \
      (!board2d(x,y)))
 
+/*
+ * jumps the pin at (x,y) to position
+ * (new_x, new_y)
+ */
 #define jump(x, y, new_x, new_y) \
     board2d(x, y) = false;\
     board2d(new_x, new_y) = true;\
     board2d(((x+new_x)/2), ((y+new_y)/2)) = false;
 
+/*
+ * returns true if the pin at position
+ * (fx, fy) can jump to the position
+ * (jx, jy)
+ */
 #define can_jump_to(fx, fy, jx, jy)\
     (is_hole(jx, jy) && \
      board2d(((fx+jx)/2), ((fy+jy)/2)))
 
+/*
+ * returns true if there is a pin at (x,y)
+ * and if it can jump to any position
+ */
 #define can_jump(x, y) \
     (board2d(x, y) && \
      (can_jump_to(x, y, (x+2), y) || \
