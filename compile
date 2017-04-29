@@ -8,5 +8,5 @@ fi
 # compile the program with the X and Y macros
 # definied by the function calling this script
 spin -a -DLEN=$1 -DX=$2 -DY=$3 tt.pml
-gcc -o pan -O2 -DSAFETY pan.c
+gcc -o pan -DSAFETY pan.c
 ./pan

@@ -1,0 +1,71 @@
+___________      .__        __            ___________      .__                      .__          
+\__    ___/______|__| ____ |  | _____.__. \__    ___/______|__|____    ____    ____ |  |   ____  
+  |    |  \_  __ \  |/ ___\|  |/ <   |  |   |    |  \_  __ \  \__  \  /    \  / ___\|  | _/ __ \ 
+  |    |   |  | \/  \  \___|    < \___  |   |    |   |  | \/  |/ __ \|   |  \/ /_/  >  |_\  ___/ 
+  |____|   |__|  |__|\___  >__|_ \/ ____|   |____|   |__|  |__(____  /___|  /\___  /|____/\___  >
+                         \/     \/\/                               \/     \//_____/           \/ 
+
+
+# Purpose
+
+The goal of our project was to prove that the tricky triangle
+(http://www.termstech.com/images/TrickyTriangle/TrickyTriangleGame.jpg)
+is solvable from every starting state.
+
+## Game Mechanics
+
+The goal of the game is to have 1 peg left on the board. The player repeatedly
+makes moves until they can no longer make moves. If there is only 1 peg on the
+board at this time, we say that the player has won. Otherwise the player has
+lost.
+
+During each move, the player selects 1 pin to jump over an adjacent pin into an
+empty space. The player then removes the pin that was jumped over.
+
+## Terminology
+
+We call an initial board state a starting state. In every starting state, all
+of the holes, except for one, contain pins. We say that the starting state is
+solvable if there is some series of moves that will allow a player to win. Our
+goal is to show that for boards of size 5 (15 holes, 14 initial pegs), every
+starting state is possible.
+
+# Program Overview
+
+## run_tests.py
+
+This program is the way to run our tests. 
+
+./run_tests.py <SIZE>
+
+attempts to solve every possible starting state of size SIZE. It then prints
+coordinates followed by the boolean that represents if that corrdinate has a
+solution.
+
+Ej. (0, 0): 1
+
+Would show that coordinate 0, 0 has a solution.
+
+The script parses input, runs compile, and checks if the program could solve
+the board from that starting state. It does this for all starting states.
+
+## compile
+
+This compiles and starts running our spin program, while passing the input size
+and coordinates for the empty hole.
+
+## tt.pml
+
+This is the main program that actually solves a board given a starting state
+and length. It generates a board, and nondeterministically chooses moves. If
+any of the branching moves reaches a winning state (there is only 1 pin left),
+the program throws an error. Otherwise it does not.
+
+## Representation
+
+In order to represent our board state within our spin program, we shifted the
+holes so that they create a right triangle, and labeled each hole with
+coordinates.
+
+Ej. The top hole is (0, 4) in a board of size 5, the bottom left hole is (0,
+0) and the bottom right hole is (4, 0).
