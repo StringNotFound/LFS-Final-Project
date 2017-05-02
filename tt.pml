@@ -1,4 +1,9 @@
 // LEN is defined at compile time with the -D flag
+#ifndef LEN
+#define LEN 5
+#define X 0
+#define Y 0
+#endif
 
 // how many holes are in the board given LEN?
 #define NUM_HOLES (LEN)*(LEN+1)/2
@@ -26,7 +31,11 @@
 #define jump(x, y, new_x, new_y) \
     board2d(x, y) = false;\
     board2d(new_x, new_y) = true;\
-    board2d(((x+new_x)/2), ((y+new_y)/2)) = false;
+    board2d(((x+new_x)/2), ((y+new_y)/2)) = false;\
+    x_jump = x;\
+    x_jump_to = new_x;\
+    y_jump = y;\
+    y_jump_to = new_y;
 
 /*
  * returns true if the pin at position
@@ -59,6 +68,10 @@ bool won = false;
  */
 proctype Board(byte hole_x, hole_y) {
 
+    int x_jump = 0;
+    int x_jump_to = 0;
+    int y_jump = 0;
+    int y_jump_to = 0;
     // initialize the board to all true except for the hole
     bool board[LEN * LEN];
     byte j = 0;
