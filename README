@@ -20,7 +20,8 @@ board at this time, we say that the player has won. Otherwise the player has
 lost.
 
 During each move, the player selects 1 pin to jump over an adjacent pin into an
-empty space. The player then removes the pin that was jumped over.
+empty space. The player then removes the pin that was jumped over. Pins can jump
+verically, horizontally, or diagonally
 
 ## Terminology
 
@@ -28,7 +29,8 @@ We call an initial board state a starting state. In every starting state, all
 of the holes, except for one, contain pins. We say that the starting state is
 solvable if there is some series of moves that will allow a player to win. Our
 goal is to show that for boards of size 5 (15 holes, 14 initial pegs), every
-starting state is possible.
+starting state is possible. Note that the starting state (0,0) denotes the board
+with a hole in at coordinate (0,0)
 
 # Program Overview
 
@@ -39,27 +41,41 @@ This program is the way to run our tests.
 ./run_tests.py <SIZE>
 
 attempts to solve every possible starting state of size SIZE. It then prints
-coordinates followed by the boolean that represents if that corrdinate has a
-solution.
+coordinates followed by the boolean that represents if that starting state has
+a solution.
 
 Ej. (0, 0): 1
 
-Would show that coordinate 0, 0 has a solution.
+would show that coordinate 0, 0 has a solution while
 
-The script parses input, runs compile, and checks if the program could solve
-the board from that starting state. It does this for all starting states.
+(0, 0): 0
+
+would indicate that the starting state (0, 0) has no solution.
+
+The script parses the user's input and then runs the script compile. Based on
+the output from compile, the program can determine whether the board was
+solvable from that starting state. It uses regex to parse this input and
+displays it in a user-friendly manner.
 
 ## compile
+
+./compile <SIZE> <X> <Y>
 
 This compiles and starts running our spin program, while passing the input size
 and coordinates for the empty hole.
 
+This is a simple bash script with compiles tt.pml to solve for a single starting
+state. It does this by means of passing precompiler flags to spin, where LEN is
+the size of the triangle, X is the starting hole's X coordinate, and Y is the
+starting hole's Y coordinate
+
 ## tt.pml
 
-This is the main program that actually solves a board given a starting state
-and length. It generates a board, and nondeterministically chooses moves. If
-any of the branching moves reaches a winning state (there is only 1 pin left),
-the program throws an error. Otherwise it does not.
+This is the spin program which solves a board given a starting state and length.
+It generates a board, and nondeterministically chooses moves. It then asserts
+that none of the branching moves ever reach a winning state for the board (the
+state in which there is only 1 pin left). If this assert fails, the board is
+of course solvable. Otherwise it is not.
 
 ## Representation
 
@@ -69,3 +85,6 @@ coordinates.
 
 Ej. The top hole is (0, 4) in a board of size 5, the bottom left hole is (0,
 0) and the bottom right hole is (4, 0).
+
+Note that technically this right triangle is then represented in the lower left
+half of a 2D array.
